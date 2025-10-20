@@ -1,0 +1,26 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment / config files
+*.env
+*.ini
+*.cfg
+
+# VS Code workspace
+.vscode/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
