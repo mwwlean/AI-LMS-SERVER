@@ -1,17 +1,23 @@
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "EVSU Library MVP"
-    database_url: str = "mysql+mysqlconnector://root:@localhost/evsu_library"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    app_name: str = Field(default="AI LMS API", alias="APP_NAME")
+    database_url: str = Field(..., alias="DATABASE_URL")
+    openrouter_api_key: str = Field(default="", alias="OPENROUTER_API_KEY")
+    openrouter_model: str = Field(..., alias="OPENROUTER_MODEL")
 
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+settings = get_settings()
+
+
