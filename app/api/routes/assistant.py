@@ -8,9 +8,6 @@ router = APIRouter(prefix="/assistant", tags=["assistant"])
 
 
 @router.post("/chat", response_model=AssistantResponse)
-async def ask_assistant(
-    payload: AssistantRequest,
-    db=Depends(get_db),
-):
+async def ask_assistant(payload: AssistantRequest, db=Depends(get_db)):
     service = AIAssistantService(db)
-    return await service.handle_query(payload.query)
+    return await service.handle_query(payload.query.strip())
