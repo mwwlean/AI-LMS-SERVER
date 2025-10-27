@@ -24,3 +24,8 @@ ENV/
 # OS junk
 .DS_Store
 Thumbs.db
+
+
+secrets.txt
+
+.env

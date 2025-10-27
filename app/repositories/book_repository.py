@@ -1,5 +1,8 @@
+import re
+from difflib import SequenceMatcher
 from typing import List, Optional
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.book import Book
@@ -94,3 +97,55 @@ class BookRepository:
     def delete(self, book: Book) -> None:
         self.db.delete(book)
         self.db.commit()
+
+    def search(self, query: str, limit: int = 5) -> List[Book]:
+        terms = [term for term in re.split(r"\W+", query) if term]
+        if not terms:
+            return []
+
+        clauses = []
+        for term in terms:
+            pattern = f"%{term}%"
+            clauses.extend(
+                [
+                    Book.title.ilike(pattern),
+                    Book.author.ilike(pattern),
+                    Book.category.ilike(pattern),
+                ]
+            )
+
+        results = (
+            self.db.query(Book)
+            .options(
+                selectinload(Book.type),
+                selectinload(Book.location),
+                selectinload(Book.inventory),
+            )
+            .filter(or_(*clauses))
+            .limit(limit)
+            .all()
+        )
+
+        if results:
+            return results
+
+        candidates = (
+            self.db.query(Book)
+            .options(
+                selectinload(Book.type),
+                selectinload(Book.location),
+                selectinload(Book.inventory),
+            )
+            .limit(100)
+            .all()
+        )
+
+        scored = []
+        lowered_query = query.lower()
+        for book in candidates:
+            ratio = SequenceMatcher(None, book.title.lower(), lowered_query).ratio()
+            if ratio >= 0.6:
+                scored.append((ratio, book))
+
+        scored.sort(key=lambda item: item[0], reverse=True)
+        return [book for _, book in scored[:limit]]
