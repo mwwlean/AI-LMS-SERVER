@@ -4,18 +4,21 @@ from pydantic import BaseModel, EmailStr
 
 
 class LibrarianBase(BaseModel):
-    full_name: str
+    name: str
     email: EmailStr
+    contact: Optional[str] = None
+    librarian_id_image: Optional[str] = None
 
 
 class LibrarianCreate(LibrarianBase):
-    password: str
+    pass
 
 
 class LibrarianUpdate(BaseModel):
-    full_name: Optional[str] = None
+    name: Optional[str] = None
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
+    contact: Optional[str] = None
+    librarian_id_image: Optional[str] = None
 
 
 class LibrarianRead(LibrarianBase):

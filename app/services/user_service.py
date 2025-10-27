@@ -1,11 +1,9 @@
-from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate, UserRead, UserUpdate
-from passlib.context import CryptContext
 from typing import List, Optional
+
 from sqlalchemy.orm import Session
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from app.repositories.user_repository import UserRepository
+from app.schemas.user import UserCreate, UserRead, UserUpdate
 
 
 class UserService:
@@ -26,17 +24,11 @@ class UserService:
 
     def create_user(self, data: UserCreate) -> UserRead:
         payload = data.model_dump()
-        payload["password"] = pwd_context.hash(payload["password"])
         user = self.repository.create(payload)
         return UserRead.model_validate(user)
 
     def update_user(self, user_id: int, data: UserUpdate) -> Optional[UserRead]:
-        changes = {
-            key: value
-            for key, value in data.model_dump(exclude_unset=True).items()
-        }
-        if "password" in changes and changes["password"]:
-            changes["password"] = pwd_context.hash(changes["password"])
+        changes = data.model_dump(exclude_unset=True)
         user = self.repository.update(user_id, changes)
         return UserRead.model_validate(user) if user else None
 

@@ -23,7 +23,8 @@ class BookService:
         return BookRead.model_validate(book)
 
     def create_book(self, dto: BookCreate) -> BookRead:
-        book = self.repository.create(dto.model_dump())
+        payload = dto.model_dump(exclude_none=True)
+        book = self.repository.create(payload)
         return BookRead.model_validate(book)
 
     def update_book(
@@ -34,7 +35,7 @@ class BookService:
         book = self.repository.get(book_id)
         if not book:
             return None
-        data = dto.model_dump(exclude_unset=True)
+        data = dto.model_dump(exclude_unset=True, exclude_none=True)
         updated = self.repository.update(book, data)
         return BookRead.model_validate(updated)
 

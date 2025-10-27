@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Enum, ForeignKey, Integer, TIMESTAMP
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -12,3 +13,5 @@ class Transaction(Base):
     type = Column(Enum("borrow", "return", name="transaction_type"), nullable=False)
     status = Column(Enum("pending", "done", name="transaction_status"), default="pending")
     timestamp = Column(TIMESTAMP)
+
+    book = relationship("Book", back_populates="transactions")

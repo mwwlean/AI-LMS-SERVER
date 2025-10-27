@@ -27,10 +27,10 @@ def get_user(
     user_id: int,
     service: UserService = Depends(get_user_service),
 ):
-    result = service.get_user(user_id)
-    if not result:
-        raise HTTPException(status_code=404, detail="User not found")
-    return result
+    user = service.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
 
 
 @router.put("/{user_id}", response_model=UserRead)
@@ -39,10 +39,10 @@ def update_user(
     payload: UserUpdate,
     service: UserService = Depends(get_user_service),
 ):
-    result = service.update_user(user_id, payload)
-    if not result:
-        raise HTTPException(status_code=404, detail="User not found")
-    return result
+    user = service.update_user(user_id, payload)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -50,6 +50,6 @@ def delete_user(
     user_id: int,
     service: UserService = Depends(get_user_service),
 ):
-    removed = service.delete_user(user_id)
-    if not removed:
-        raise HTTPException(status_code=404, detail="User not found")
+    deleted = service.delete_user(user_id)
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

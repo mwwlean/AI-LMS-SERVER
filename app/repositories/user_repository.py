@@ -32,8 +32,10 @@ class UserRepository:
         user = self.get(user_id)
         if not user:
             return None
+
         for key, value in data.items():
             setattr(user, key, value)
+
         self.session.commit()
         self.session.refresh(user)
         return user
