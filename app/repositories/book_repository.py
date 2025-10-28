@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.book import Book
 from app.models.book_acquisition import BookAcquisition
-from app.models.book_call_number import BookCallNumber
 from app.models.book_inventory import BookInventory
 
 
@@ -19,10 +18,7 @@ class BookRepository:
         return (
             self.db.query(Book)
             .options(
-                selectinload(Book.type),
-                selectinload(Book.location),
                 selectinload(Book.acquisition),
-                selectinload(Book.call_number),
                 selectinload(Book.inventory),
             )
             .all()
@@ -32,10 +28,7 @@ class BookRepository:
         return (
             self.db.query(Book)
             .options(
-                selectinload(Book.type),
-                selectinload(Book.location),
                 selectinload(Book.acquisition),
-                selectinload(Book.call_number),
                 selectinload(Book.inventory),
             )
             .filter(Book.id == book_id)
@@ -44,15 +37,12 @@ class BookRepository:
 
     def create(self, data: dict) -> Book:
         acquisition_data = data.pop("acquisition", None)
-        call_number_data = data.pop("call_number", None)
         inventory_data = data.pop("inventory", None)
 
         book = Book(**data)
 
         if acquisition_data:
             book.acquisition = BookAcquisition(**acquisition_data)
-        if call_number_data:
-            book.call_number = BookCallNumber(**call_number_data)
         if inventory_data:
             book.inventory = BookInventory(**inventory_data)
 
@@ -63,7 +53,6 @@ class BookRepository:
 
     def update(self, book: Book, data: dict) -> Book:
         acquisition_data = data.pop("acquisition", None)
-        call_number_data = data.pop("call_number", None)
         inventory_data = data.pop("inventory", None)
 
         for key, value in data.items():
@@ -75,13 +64,6 @@ class BookRepository:
                     setattr(book.acquisition, key, value)
             elif acquisition_data:
                 book.acquisition = BookAcquisition(**acquisition_data)
-
-        if call_number_data is not None:
-            if book.call_number:
-                for key, value in call_number_data.items():
-                    setattr(book.call_number, key, value)
-            elif call_number_data:
-                book.call_number = BookCallNumber(**call_number_data)
 
         if inventory_data is not None:
             if book.inventory:
@@ -99,7 +81,7 @@ class BookRepository:
         self.db.commit()
 
     def search(self, query: str, limit: int = 5) -> List[Book]:
-        terms = [term for term in re.split(r"\W+", query) if term]
+        terms = [term for term in query.split() if term]
         if not terms:
             return []
 
@@ -111,14 +93,16 @@ class BookRepository:
                     Book.title.ilike(pattern),
                     Book.author.ilike(pattern),
                     Book.category.ilike(pattern),
+                    Book.book_type.ilike(pattern),
+                    Book.book_location.ilike(pattern),
+                    Book.call_numbers.ilike(pattern),
                 ]
             )
 
         results = (
             self.db.query(Book)
             .options(
-                selectinload(Book.type),
-                selectinload(Book.location),
+                selectinload(Book.acquisition),
                 selectinload(Book.inventory),
             )
             .filter(or_(*clauses))
@@ -132,8 +116,7 @@ class BookRepository:
         candidates = (
             self.db.query(Book)
             .options(
-                selectinload(Book.type),
-                selectinload(Book.location),
+                selectinload(Book.acquisition),
                 selectinload(Book.inventory),
             )
             .limit(100)

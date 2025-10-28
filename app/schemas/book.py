@@ -1,26 +1,9 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel, field_validator
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 from app.models.book import BookStatus
-
-
-class BookCallNumberBase(BaseModel):
-    classification: Optional[str] = None
-    copyright: Optional[str] = None
-    authors: Optional[str] = None
-    copy: Optional[str] = None
-
-
-class BookCallNumberCreate(BookCallNumberBase):
-    pass
-
-
-class BookCallNumberRead(BookCallNumberBase):
-    class Config:
-        from_attributes = True
 
 
 class BookAcquisitionBase(BaseModel):
@@ -59,44 +42,18 @@ class BookInventoryRead(BookInventoryBase):
         from_attributes = True
 
 
-class BookTypeRead(BaseModel):
-    id: int
-    name: str
-
-    class Config:
-        from_attributes = True
-
-
-class BookLocationRead(BaseModel):
-    id: int
-    name: str
-
-    class Config:
-        from_attributes = True
-
-
 class BookBase(BaseModel):
     title: str
     author: str
     isbn: Optional[str] = None
     category: Optional[str] = None
-    type_id: Optional[int] = None
-    location_id: Optional[int] = None
-
-    @field_validator("type_id", "location_id", mode="before")
-    def _normalize_fk(cls, value):
-        if value in (None, ""):
-            return None
-        try:
-            ivalue = int(value)
-        except (TypeError, ValueError):
-            return value
-        return ivalue if ivalue > 0 else None
+    call_numbers: Optional[str] = None
+    book_type: Optional[str] = None
+    book_location: Optional[str] = None
 
 
 class BookCreate(BookBase):
     acquisition: Optional[BookAcquisitionCreate] = None
-    call_number: Optional[BookCallNumberCreate] = None
     inventory: Optional[BookInventoryCreate] = None
 
 
@@ -105,29 +62,16 @@ class BookUpdate(BaseModel):
     author: Optional[str] = None
     isbn: Optional[str] = None
     category: Optional[str] = None
-    type_id: Optional[int] = None
-    location_id: Optional[int] = None
+    call_numbers: Optional[str] = None
+    book_type: Optional[str] = None
+    book_location: Optional[str] = None
     acquisition: Optional[BookAcquisitionCreate] = None
-    call_number: Optional[BookCallNumberCreate] = None
     inventory: Optional[BookInventoryCreate] = None
-
-    @field_validator("type_id", "location_id", mode="before")
-    def _normalize_fk(cls, value):
-        if value in (None, ""):
-            return None
-        try:
-            ivalue = int(value)
-        except (TypeError, ValueError):
-            return value
-        return ivalue if ivalue > 0 else None
 
 
 class BookRead(BookBase):
     id: int
-    type: Optional[BookTypeRead] = None
-    location: Optional[BookLocationRead] = None
     acquisition: Optional[BookAcquisitionRead] = None
-    call_number: Optional[BookCallNumberRead] = None
     inventory: Optional[BookInventoryRead] = None
 
     model_config = ConfigDict(from_attributes=True, use_enum_values=True)
