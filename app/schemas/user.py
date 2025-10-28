@@ -6,8 +6,10 @@ from app.models.user import UserRole
 
 
 class UserBase(BaseModel):
-    name: str
-    email: EmailStr
+    first_name: str
+    middle_name: Optional[str] = None
+    last_name: str
+    email: Optional[EmailStr] = None
     age: Optional[int] = None
     role: UserRole
     student_id: Optional[str] = None

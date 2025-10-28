@@ -15,8 +15,10 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    email = Column(String(255), unique=True, index=True, nullable=False)
+    first_name = Column(String(255), nullable=False)
+    middle_name = Column(String(255), nullable=True)
+    last_name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=True)
     student_id = Column(String(50), unique=True, nullable=True)
     age = Column(Integer, nullable=True)
     role = Column(
