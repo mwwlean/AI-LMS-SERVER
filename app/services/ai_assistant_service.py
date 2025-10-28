@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import httpx
 from sqlalchemy.orm import Session
@@ -166,18 +166,29 @@ class AIAssistantService:
                 return None
         return None
 
-    def _format_book(self, book, summary: str | None) -> str:
-        inv = book.inventory
-        available = inv.copies_available if inv else "unknown"
-        total = inv.total_copies if inv else "unknown"
-        type_name = book.type.name if book.type else "unspecified"
-        location = book.location.name if book.location else "unspecified"
+    def _format_book(self, book: Book, summary: Optional[str]) -> str:
+        inventory = getattr(book, "inventory", None)
+        status_raw = getattr(inventory, "status", None) if inventory else None
+        if hasattr(status_raw, "value"):
+            status = status_raw.value
+        else:
+            status = status_raw or "unknown"
+
+        available = getattr(inventory, "copies_available", 0) or 0
+        total = getattr(inventory, "total_copies", 0) or 0
+        type_name = book.book_type or "unspecified"
+        location = book.book_location or "unspecified"
+        call_number = book.call_numbers or "unspecified"
         summary_line = f"\nSummary: {summary}" if summary else ""
         return (
             f"Title: {book.title}\n"
             f"Author: {book.author}\n"
-            f"Type: {type_name}\n"
-            f"Location: {location}\n"
+            f"- Status: {status}\n"
+            f"- Available copies: {available}\n"
+            f"- Total copies: {total}\n"
+            f"- Type: {type_name}\n"
+            f"- Location: {location}\n"
+            f"- Call number: {call_number}\n"
             f"Available copies: {available}\n"
             f"Total copies: {total}{summary_line}"
         )

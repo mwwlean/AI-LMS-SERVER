@@ -2,7 +2,7 @@ import re
 from difflib import SequenceMatcher
 from typing import List, Optional
 
-from sqlalchemy import or_
+from sqlalchemy import case, or_
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.book import Book
@@ -80,7 +80,7 @@ class BookRepository:
         self.db.delete(book)
         self.db.commit()
 
-    def search(self, query: str, limit: int = 5) -> List[Book]:
+    def search(self, query: str, limit: int = 20) -> List[Book]:
         terms = [term for term in query.split() if term]
         if not terms:
             return []
@@ -99,6 +99,9 @@ class BookRepository:
                 ]
             )
 
+        pattern = f"%{query}%"
+        title_priority = case((Book.title.ilike(pattern), 0), else_=1)
+
         results = (
             self.db.query(Book)
             .options(
@@ -106,6 +109,7 @@ class BookRepository:
                 selectinload(Book.inventory),
             )
             .filter(or_(*clauses))
+            .order_by(title_priority, Book.id)
             .limit(limit)
             .all()
         )

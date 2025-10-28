@@ -13,6 +13,7 @@ class BookAcquisitionBase(BaseModel):
     publisher: Optional[str] = None
     published_year: Optional[int] = None
     date_copyright: Optional[date] = None
+    volume_edition: Optional[str] = None
 
 
 class BookAcquisitionCreate(BookAcquisitionBase):
@@ -47,6 +48,7 @@ class BookBase(BaseModel):
     author: str
     isbn: Optional[str] = None
     category: Optional[str] = None
+    pages: Optional[int] = None
     call_numbers: Optional[str] = None
     book_type: Optional[str] = None
     book_location: Optional[str] = None

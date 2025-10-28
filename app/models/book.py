@@ -19,6 +19,7 @@ class Book(Base):
     author = Column(String(255), nullable=False)
     isbn = Column(String(64), unique=True, nullable=True)
     category = Column(String(100), nullable=True)
+    pages = Column(Integer, nullable=True)
     call_numbers = Column(String(255), nullable=True)
     book_type = Column(String(100), nullable=True)
     book_location = Column(String(100), nullable=True)

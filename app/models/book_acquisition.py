@@ -14,5 +14,6 @@ class BookAcquisition(Base):
     publisher = Column(String(255), nullable=True)
     published_year = Column(Integer, nullable=True)
     date_copyright = Column(Date, nullable=True)
+    volume_edition = Column(String(255), nullable=True)
 
     book = relationship("Book", back_populates="acquisition")
